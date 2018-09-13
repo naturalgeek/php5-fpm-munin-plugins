@@ -106,7 +106,7 @@ foreach my $port (@PORTS)
 {
     my $ua = LWP::UserAgent->new(timeout => 30);
     my $url = sprintf $URL, $port;
-    my $response = $ua->request(HTTP::Request->new('GET',['Host' => "$HOST"]));
+    my $response = $ua->request(HTTP::Request->new('GET',$url, ['Host' => "$HOST"]));
 	if ($response->content =~ /idle processes:\s+([0-9\.]+)/im) {
         print "idle.value $1\n";
     } else {
