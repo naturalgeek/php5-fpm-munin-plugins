@@ -20,6 +20,7 @@ configuration to override the defaults. These are the defaults:
 
   [phpfpm_*]
     env.url http://127.0.0.1/status
+    env.hostname my.host.header
     env.ports 80
     env.warning 0.6
     env.critical 0.8
@@ -54,6 +55,7 @@ if (! eval "require LWP::UserAgent;")
 }
 
 my $URL = exists $ENV{'url'} ? $ENV{'url'} : "http://127.0.0.1:%d/status";
+my $HOST = exists $ENV{'host'} ? $ENV{'host'} : "";
 my @PORTS = exists $ENV{'ports'} ? split(' ', $ENV{'ports'}) : (80);
 
 if ( defined $ARGV[0] and $ARGV[0] eq "autoconf" )
@@ -69,7 +71,7 @@ if ( defined $ARGV[0] and $ARGV[0] eq "autoconf" )
 	my @badports;
 	foreach my $port (@PORTS) {
 		my $url = sprintf $URL, $port;
-		my $response = $ua->request(HTTP::Request->new('GET',$url));
+		my $response = $ua->request(HTTP::Request->new('GET',$url,['Host' => "$HOST"]));
 		push @badports, $port unless $response->is_success and $response->content =~ /^accepted conn:/im;
 	}
 	if (@badports) {
@@ -104,7 +106,7 @@ foreach my $port (@PORTS)
 {
     my $ua = LWP::UserAgent->new(timeout => 30);
     my $url = sprintf $URL, $port;
-    my $response = $ua->request(HTTP::Request->new('GET',$url));
+    my $response = $ua->request(HTTP::Request->new('GET',['Host' => "$HOST"]));
 	if ($response->content =~ /idle processes:\s+([0-9\.]+)/im) {
         print "idle.value $1\n";
     } else {
